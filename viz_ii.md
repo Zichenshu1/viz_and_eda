@@ -5,14 +5,14 @@ Visualization
 library(tidyverse)
 ```
 
-    ## -- Attaching packages -------------------------------------------- tidyverse 1.3.0 --
+    ## -- Attaching packages --------------------- tidyverse 1.3.0 --
 
     ## √ ggplot2 3.3.2     √ purrr   0.3.4
     ## √ tibble  3.0.3     √ dplyr   1.0.2
     ## √ tidyr   1.1.2     √ stringr 1.4.0
     ## √ readr   1.3.1     √ forcats 0.5.0
 
-    ## -- Conflicts ----------------------------------------------- tidyverse_conflicts() --
+    ## -- Conflicts ------------------------ tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -80,3 +80,31 @@ weather_df
     ##  9 CentralPark_NY USW00094728 2017-01-09     0  -4.9  -9.9
     ## 10 CentralPark_NY USW00094728 2017-01-10     0   7.8  -6  
     ## # ... with 1,085 more rows
+
+## Remember this plot…?
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = .5)
+```
+
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+
+``` r
+weather_df %>% 
+  ggplot(aes(x = tmin, y = tmax, color = name)) +
+  geom_point(alpha = .5) +
+  labs(
+    title = "Temperature plot",
+    x = "Minimum daily temperature (C)",
+    y = "Maximum daily temperature (C)",
+    caption = "Data from rnoaa package; temperatures in 2017."
+  )
+```
+
+    ## Warning: Removed 15 rows containing missing values (geom_point).
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
