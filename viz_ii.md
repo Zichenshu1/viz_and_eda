@@ -5,14 +5,14 @@ Visualization
 library(tidyverse)
 ```
 
-    ## -- Attaching packages --------------------- tidyverse 1.3.0 --
+    ## -- Attaching packages -------------------------------------------- tidyverse 1.3.0 --
 
     ## √ ggplot2 3.3.2     √ purrr   0.3.4
     ## √ tibble  3.0.3     √ dplyr   1.0.2
     ## √ tidyr   1.1.2     √ stringr 1.4.0
     ## √ readr   1.3.1     √ forcats 0.5.0
 
-    ## -- Conflicts ------------------------ tidyverse_conflicts() --
+    ## -- Conflicts ----------------------------------------------- tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
 
@@ -367,3 +367,87 @@ weather_df %>%
     ## Warning: Removed 18 rows containing non-finite values (stat_density).
 
 ![](viz_ii_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+
+## Revisit the pups
+
+Data from the FAS study.
+
+``` r
+pup_data =
+  read_csv("./data/FAS_pups.csv") %>% 
+  janitor::clean_names() %>% 
+  mutate(sex = recode(sex, `1` = "male", `2` = "female"))
+```
+
+    ## Parsed with column specification:
+    ## cols(
+    ##   `Litter Number` = col_character(),
+    ##   Sex = col_double(),
+    ##   `PD ears` = col_double(),
+    ##   `PD eyes` = col_double(),
+    ##   `PD pivot` = col_double(),
+    ##   `PD walk` = col_double()
+    ## )
+
+    ## Warning in FUN(X[[i]], ...): strings not representable in native encoding will
+    ## be translated to UTF-8
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00C4>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00D6>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00E4>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00F6>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00DF>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00C6>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00E6>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00D8>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00F8>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00C5>' to native encoding
+
+    ## Warning in FUN(X[[i]], ...): unable to translate '<U+00E5>' to native encoding
+
+``` r
+litters_data =
+  read_csv("./data/FAS_litters.csv") %>% 
+  janitor::clean_names() %>% 
+  separate(group, into = c("dose", "day_of_tx"), sep = 3)
+```
+
+    ## Parsed with column specification:
+    ## cols(
+    ##   Group = col_character(),
+    ##   `Litter Number` = col_character(),
+    ##   `GD0 weight` = col_double(),
+    ##   `GD18 weight` = col_double(),
+    ##   `GD of Birth` = col_double(),
+    ##   `Pups born alive` = col_double(),
+    ##   `Pups dead @ birth` = col_double(),
+    ##   `Pups survive` = col_double()
+    ## )
+
+``` r
+fas_data = left_join(pup_data, litters_data, by = "litter_number")
+
+fas_data %>% 
+  select(dose, day_of_tx, starts_with("pd_")) %>% 
+  pivot_longer(
+    pd_ears:pd_walk,
+    names_to = "outcome",
+    values_to = "pn_day"
+      ) %>% 
+  drop_na() %>% 
+  mutate(outcome = forcats::fct_relevel(outcome, "pd_ears", "pd_pivot", "pd_walk", "pd_eyes")) %>% 
+  ggplot(aes(x = dose, y = pn_day)) +
+  geom_violin() +
+  facet_grid(day_of_tx ~outcome)
+```
+
+![](viz_ii_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
